@@ -1,53 +1,27 @@
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
-const db = require('./db/connection');
+
+// const db = require('./db/connection');
 const inquirer = require('inquirer')
-
-const Department = require('./models/Department');
-const Employee = require('./models/Employee')
-const Role = require('./models/Role');
-const { response } = require('express');
+const orm = require('./db/orm')
 
 
 
-// db.authenticate()
-//     .then(() => console.log('Database connected...'))
-//     .catch(err => console.log('Error: ' + err));
 
-// app.get('/', (req, res) => {
-//     res.send('You are on the Landing Page!a');
-// })
+const mysql = require('mysql')
 
-// app.get('/department', (req, res) => {
-//     Department.findAll()
-//         .then(gigs => {
-//             console.log(gigs);
-//             res.send(200)
-//         })
-//         .catch(err => res.send(err))
-// })
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '1Ardiadcm!',
+    database: 'employee_tracker'
+})
 
-// app.get('/role', (req, res) => {
-//     Role.findAll()
-//         .then(gigs => {
-//             console.log(gigs);
-//             res.send(200)
-//         })
-//         .catch(err => res.send(err))
-// })
-
-// app.get('/employee', (req, res) => {
-//     Employee.findAll()
-//         .then(gigs => {
-//             console.log(gigs);
-//             res.send(200)
-//         })
-//         .catch(err => res.send(err))
-// })
-
-// app.listen(PORT, console.log(`Listening on: http://localhost:${PORT}`));
-
+db.connect((err) => {
+    if (err) {
+        throw err
+    }
+    console.log('MySql connected...');
+    askUser()
+})
 
 async function askUser() {
     const response = await inquirer.prompt(
@@ -56,22 +30,60 @@ async function askUser() {
                 type: 'list',
                 name: 'options',
                 message: 'What would you like to do?',
-                choices: ['View Employees', 'Add and Employee', 'Update Employee Information']
+                choices: [
+                    'View Company',
+                    'View Employees',
+                    'View Roles',
+                    'View Departments',
+                    'Add an Employee',
+                    'Add a Role',
+                    'Add a Department',
+                    'Update Employee Information']
             }
         ]
     )
 
     switch (response.options) {
+        case 'View Company':
+            console.log('You selected: View Company');
+            // Displays table of employees in console
+            viewCompany()
+            // encore()
+            break;
+
         case 'View Employees':
             console.log('You selected: View Employees');
-            // Displays table of employees in console
-            displayEmployees()
+            viewEmployee()
             encore()
             break;
 
-        case 'Add and Employee':
-            console.log('You selected: Add and Employee');
+        case 'View Roles':
+            console.log('You selected: View Roles');
+            viewRole()
+            encore()
+            break;
+
+        case 'View Departments':
+            console.log('You selected: View Departments');
+            viewDepartment()
+            encore()
+            break;
+
+        case 'Add an Employee':
+            console.log('You selected: Add an Employee');
             addEmployee()
+            encore()
+            break;
+
+        case 'Add a Role':
+            console.log('You selected: Add a Role');
+            addRole()
+            encore()
+            break;
+
+        case 'Add a Department':
+            console.log('You selected: Add a Department');
+            addDepartment()
             encore()
             break;
 
@@ -80,15 +92,35 @@ async function askUser() {
             updateEmployee()
             encore()
             break;
+
+        case 'Leave':
+            console.log('You selected: Leave')
+            break;
     }
 }
 
 const encore = () => askUser();
 
-function displayEmployees() {
+async function viewCompany() {
+    let response = await orm.showCompany()
+    console.table(response)
+}
 
+async function viewEmployee() {
+    let response = await orm.showEmployee()
+    console.table(response)
+}
+
+async function viewRole() {
+    let response = await orm.showRole()
+    console.table(response)
+}
+
+async function viewDepartment() {
+    let response = await orm.showDepartment()
+    console.table(response)
 }
 
 
 
-askUser()
+

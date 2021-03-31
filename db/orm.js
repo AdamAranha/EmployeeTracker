@@ -35,6 +35,11 @@ async function addDepartment(department) {
     return response
 }
 
-module.exports = { showCompany, showEmployee, showRole, showDepartment, addEmployee, addRole, addDepartment }
+async function updateEmployee(employee, role) {
+    const response = db.query(`UPDATE employees SET role_id = ${role} WHERE first_name = '${employee}'`)
+    return response
+}
+
+module.exports = { showCompany, showEmployee, showRole, showDepartment, addEmployee, addRole, addDepartment, updateEmployee }
 
 // 'SELECT employees.first_name, employees.last_name,departments.title, departments.salary FROM employees INNER JOIN roles ON roles.id = employees.role_id'

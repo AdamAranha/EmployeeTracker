@@ -1,24 +1,18 @@
-
-// const db = require('./db/connection');
 const inquirer = require('inquirer')
 const orm = require('./db/orm')
 
-// const db = mysql.createConnection({
-//     host: 'localhost',
-//     user: 'root',
-//     password: '1Ardiadcm!',
-//     database: 'employee_tracker'
-// })
-
-// db.connect((err) => {
-//     if (err) {
-//         throw err
-//     }
-//     console.log('MySql connected...');
-
-// })
+let roleList = []
+let empList = []
+let depList = []
+let roleObj
+let depObj
 
 async function askUser() {
+    updateEmpRoster()
+    updateRoleRoster()
+    updateDepRoster()
+    pullRole()
+    pullDep()
     const response = await inquirer.prompt(
         [
             {
@@ -131,7 +125,7 @@ async function addEmployee() {
                 type: 'list',
                 name: 'role',
                 message: "What is their role?",
-                choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Engineer', 'Accountant', 'Lawyer', 'Legal Team Lead']
+                choices: roleList
             },
 
             {
@@ -143,38 +137,8 @@ async function addEmployee() {
         ]
     )
 
-    const { firstName, lastName, manager_id } = response
-    let role
-
-    switch (response.role) {
-        case 'Sales Lead':
-            role = 1;
-            break;
-
-        case 'SalesPerson':
-            role = 2;
-            break;
-
-        case 'Lead Engineer':
-            role = 3;
-            break;
-
-        case 'Software Engineer':
-            role = 4;
-            break;
-
-        case 'Accountant':
-            role = 5;
-            break;
-
-        case 'Lawyer':
-            role = 6;
-            break;
-
-        case 'Legal Team Lead':
-            role = 7;
-            break;
-    }
+    let { firstName, lastName, role, manager_id } = response
+    role = returnRoleID(role)
     const query = await orm.addEmployee(firstName, lastName, role, manager_id)
     askUser()
 }
@@ -198,30 +162,12 @@ async function addRole() {
                 type: 'list',
                 name: 'department',
                 message: 'What department is it in?',
-                choices: ['Sales', 'Finance', 'Engineering', 'Legal']
+                choices: depList
             }
         ]
     )
-    let department
-    const { title, salary } = response
-
-    switch (response.department) {
-        case 'Sales':
-            department = 1
-            break
-
-        case 'Finance':
-            department = 2
-            break
-
-        case 'Engineering':
-            department = 3
-            break
-
-        case 'Legal':
-            department = 4
-            break
-    }
+    let { title, salary, department } = response
+    department = returnDepID(department)
 
     const query = await orm.addRole(title, salary, department)
     askUser()
@@ -244,7 +190,87 @@ async function addDepartment() {
     askUser()
 }
 
+async function updateEmployee() {
+
+
+    const response = await inquirer.prompt(
+        [
+            {
+                type: 'list',
+                name: 'employee',
+                message: 'Who do you want to change?',
+                choices: empList
+            },
+
+            {
+                type: 'list',
+                name: 'role',
+                message: 'What is their new role?',
+                choices: roleList
+            }
+        ]
+    )
+    let { employee, role } = response
+    console.log(`Role for [${employee}] has been changed to [${role}]`)
+    role = returnRoleID(role)
+
+    const query = await orm.updateEmployee(employee, role)
+    askUser()
+}
+
+async function updateRoleRoster() {
+    roleList = []
+    let query = await orm.showRole()
+    query.forEach(element => {
+        roleList.push(element.title)
+    });
+}
+
+// Creates easy to access arrays of Roles and Departments respectively
+async function updateEmpRoster() {
+    empList = []
+    let query = await orm.showEmployee()
+    query.forEach(element => {
+        empList.push(element.first_name)
+    });
+}
+async function updateDepRoster() {
+    depList = []
+    let query = await orm.showDepartment()
+    query.forEach(element => {
+        depList.push(element.name)
+    });
+}
+
+
+// Keeps local versions of Role and Department databases to avoid pulling unfilled promises for the asynchronous functions
+async function pullRole() {
+    roleObj = await orm.showRole()
+}
+async function pullDep() {
+    depObj = await orm.showDepartment()
+}
+
+// Changes the Role and Department words into their respective ID numbers
+function returnRoleID(role) {
+    let id
+    roleObj.forEach(element => {
+        if (element.title == role) id = element.id
+    })
+    return id
+}
+function returnDepID(department) {
+    let id
+    depObj.forEach(element => {
+        if (element.name == department) id = element.id
+    })
+    return id
+}
+
+
+
 askUser()
+
 
 
 

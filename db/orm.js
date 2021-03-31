@@ -25,13 +25,13 @@ async function addEmployee(first_name, last_name, role, manager_id) {
     return response
 }
 
-async function addRole() {
-    const response = db.query('')
+async function addRole(title, salary, department_id) {
+    const response = db.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${title}','${salary}','${department_id}')`)
     return response
 }
 
-async function addDepartment() {
-    const response = db.query('')
+async function addDepartment(department) {
+    const response = db.query(`INSERT INTO departments (name) VALUES ('${department}')`)
     return response
 }
 

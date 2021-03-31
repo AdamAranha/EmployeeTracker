@@ -3,25 +3,20 @@
 const inquirer = require('inquirer')
 const orm = require('./db/orm')
 
+// const db = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: '1Ardiadcm!',
+//     database: 'employee_tracker'
+// })
 
+// db.connect((err) => {
+//     if (err) {
+//         throw err
+//     }
+//     console.log('MySql connected...');
 
-
-const mysql = require('mysql')
-
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1Ardiadcm!',
-    database: 'employee_tracker'
-})
-
-db.connect((err) => {
-    if (err) {
-        throw err
-    }
-    console.log('MySql connected...');
-    askUser()
-})
+// })
 
 async function askUser() {
     const response = await inquirer.prompt(
@@ -92,26 +87,29 @@ async function askUser() {
     }
 }
 
-const encore = () => askUser();
 
 async function viewCompany() {
     let response = await orm.showCompany()
     console.table(response)
+    askUser()
 }
 
 async function viewEmployee() {
     let response = await orm.showEmployee()
     console.table(response)
+    askUser()
 }
 
 async function viewRole() {
     let response = await orm.showRole()
     console.table(response)
+    askUser()
 }
 
 async function viewDepartment() {
     let response = await orm.showDepartment()
     console.table(response)
+    askUser()
 }
 
 async function addEmployee() {
@@ -178,9 +176,75 @@ async function addEmployee() {
             break;
     }
     const query = await orm.addEmployee(firstName, lastName, role, manager_id)
-    console.log(query)
-    console.table(query)
+    askUser()
 }
+
+async function addRole() {
+    const response = await inquirer.prompt(
+        [
+            {
+                type: 'input',
+                name: 'title',
+                message: 'What is the name of the new Role?'
+            },
+
+            {
+                type: 'input',
+                name: 'salary',
+                message: 'What is the salary for this position?'
+            },
+
+            {
+                type: 'list',
+                name: 'department',
+                message: 'What department is it in?',
+                choices: ['Sales', 'Finance', 'Engineering', 'Legal']
+            }
+        ]
+    )
+    let department
+    const { title, salary } = response
+
+    switch (response.department) {
+        case 'Sales':
+            department = 1
+            break
+
+        case 'Finance':
+            department = 2
+            break
+
+        case 'Engineering':
+            department = 3
+            break
+
+        case 'Legal':
+            department = 4
+            break
+    }
+
+    const query = await orm.addRole(title, salary, department)
+    askUser()
+}
+
+async function addDepartment() {
+    const response = await inquirer.prompt(
+        [
+            {
+                type: 'input',
+                name: 'name',
+                message: 'What is the name of the new Department'
+            }
+        ]
+    )
+
+    const department = response.name
+
+    const query = await orm.addDepartment(department)
+    askUser()
+}
+
+askUser()
 
 
 

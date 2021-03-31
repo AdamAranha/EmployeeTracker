@@ -38,7 +38,8 @@ async function askUser() {
                     'Add an Employee',
                     'Add a Role',
                     'Add a Department',
-                    'Update Employee Information']
+                    'Update Employee Information',
+                    'Leave']
             }
         ]
     )
@@ -48,49 +49,41 @@ async function askUser() {
             console.log('You selected: View Company');
             // Displays table of employees in console
             viewCompany()
-            // encore()
             break;
 
         case 'View Employees':
             console.log('You selected: View Employees');
             viewEmployee()
-            encore()
             break;
 
         case 'View Roles':
             console.log('You selected: View Roles');
             viewRole()
-            encore()
             break;
 
         case 'View Departments':
             console.log('You selected: View Departments');
             viewDepartment()
-            encore()
             break;
 
         case 'Add an Employee':
             console.log('You selected: Add an Employee');
             addEmployee()
-            encore()
             break;
 
         case 'Add a Role':
             console.log('You selected: Add a Role');
             addRole()
-            encore()
             break;
 
         case 'Add a Department':
             console.log('You selected: Add a Department');
             addDepartment()
-            encore()
             break;
 
         case 'Update Employee Information':
             console.log('You selected: Update Employee Information');
             updateEmployee()
-            encore()
             break;
 
         case 'Leave':
@@ -119,6 +112,74 @@ async function viewRole() {
 async function viewDepartment() {
     let response = await orm.showDepartment()
     console.table(response)
+}
+
+async function addEmployee() {
+    const response = await inquirer.prompt(
+        [
+            {
+                type: 'input',
+                name: 'firstName',
+                message: "What is the employee's first name?"
+            },
+
+            {
+                type: 'input',
+                name: 'lastName',
+                message: "What is their last name?"
+            },
+
+            {
+                type: 'list',
+                name: 'role',
+                message: "What is their role?",
+                choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Engineer', 'Accountant', 'Lawyer', 'Legal Team Lead']
+            },
+
+            {
+                type: 'input',
+                name: 'manager_id',
+                message: "Who is their Manager?"
+            }
+
+        ]
+    )
+
+    const { firstName, lastName, manager_id } = response
+    let role
+
+    switch (response.role) {
+        case 'Sales Lead':
+            role = 1;
+            break;
+
+        case 'SalesPerson':
+            role = 2;
+            break;
+
+        case 'Lead Engineer':
+            role = 3;
+            break;
+
+        case 'Software Engineer':
+            role = 4;
+            break;
+
+        case 'Accountant':
+            role = 5;
+            break;
+
+        case 'Lawyer':
+            role = 6;
+            break;
+
+        case 'Legal Team Lead':
+            role = 7;
+            break;
+    }
+    const query = await orm.addEmployee(firstName, lastName, role, manager_id)
+    console.log(query)
+    console.table(query)
 }
 
 
